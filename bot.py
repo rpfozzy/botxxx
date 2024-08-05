@@ -3,7 +3,7 @@ import requests
 import os
 
 TOKEN = os.getenv('TOKEN')
-GEMINI_API_KEY = os.getenv('AIzaSyDlIJZ3gAae5S_owNcETNahJvLYwPpFEwA')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
 
 bot = telebot.TeleBot(TOKEN)
