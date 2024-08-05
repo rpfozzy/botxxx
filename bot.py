@@ -4,8 +4,8 @@ import telebot
 import requests
 import traceback
 
-API_KEY = 'YOUR_API_KEY'
-GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY'
+API_KEY = '6487715421:AAG4WeqsWG_8FkxQbbbZbHDqeDadF-0Ir1g'
+GEMINI_API_KEY = 'AIzaSyDlIJZ3gAae5S_owNcETNahJvLYwPpFEwA'
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
 
 bot = telebot.TeleBot(API_KEY)
