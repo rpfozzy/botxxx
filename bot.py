@@ -1,12 +1,11 @@
 import telebot
 import requests
-import os
 
-TOKEN = os.getenv('TOKEN')
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+API_KEY = 'Ваш_Telegram_API_Ключ'
+GEMINI_API_KEY = 'Ваш_Gemini_API_Ключ'
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
 
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(API_KEY)
 
 # Возможные вариации имени
 name_variations = ["фоззи", "фоззян", "фозхян", "фоззик", "фозик"]
@@ -48,11 +47,11 @@ def get_gemini_response(question):
     if response.status_code == 200:
         data = response.json()
         result = data['candidates'][0]['content']['parts'][0]['text']
-
+        
         # Удаление точки в конце текста
         if result.endswith('.'):
             result = result[:-1]
-
+        
         return result
     else:
         return "извините, произошла ошибка при обработке запроса"
