@@ -57,20 +57,20 @@ def handle_message(message):
         # Обработка ключевых слов
         if any(keyword in user_text for keyword in ["рп", "ресурс пак", "топ", "пвп", "текстур пак"]):
             response_text = "@rpfozzy, @tominecraft, @rp_ver1ade"
-            bot.reply_to(message, response_text)
+            sent_message = bot.reply_to(message, response_text)
         elif "как тебя звать" in user_text or "как тебя зовут" in user_text:
             response_text = f"меня зовут фоззхянка"
-            bot.reply_to(message, response_text)
+            sent_message = bot.reply_to(message, response_text)
         elif user_text.startswith('.'):
             if user_id in special_users:
                 gemini_response = get_gemini_response_special(user_text, special_users[user_id])
             else:
                 gemini_response = get_gemini_response(user_text)
             gemini_response = gemini_response.replace('*', '')  # Удаление символов "*"
-            bot.reply_to(message, gemini_response.lower())
+            sent_message = bot.reply_to(message, gemini_response.lower())
 
-            # Отправка стикера, если в ответе найдены определенные эмодзи
-            send_stickers_based_on_emojis(gemini_response, message.chat.id)
+        # Отправка стикера, если в ответе найдены определенные эмодзи
+        send_stickers_based_on_emojis(sent_message.text, message.chat.id)
     except Exception as e:
         handle_error(e)
 
