@@ -48,19 +48,17 @@ def handle_message(message):
         if user_id not in user_data:
             user_data[user_id] = []
 
-        user_data[user_id].append(user_text)
-        if len(user_data[user_id]) > 5:  # Изменили на 5
-            user_data[user_id].pop(0)
-
         bot.send_chat_action(message.chat.id, 'typing')
 
         # Обработка ключевых слов
         if any(keyword in user_text for keyword in ["рп", "ресурс пак", "топ", "пвп", "текстур пак"]):
             response_text = "@rpfozzy, @tominecraft, @rp_ver1ade"
             bot.reply_to(message, response_text)
+            store_message(user_id, user_text, response_text, response_text)
         elif "как тебя звать" in user_text or "как тебя зовут" in user_text:
             response_text = f"меня зовут фоззхянка"
             bot.reply_to(message, response_text)
+            store_message(user_id, user_text, response_text, response_text)
         elif user_text.startswith('.'):
             if user_id in special_users:
                 gemini_response = get_gemini_response_special(user_text, special_users[user_id])
@@ -68,6 +66,7 @@ def handle_message(message):
                 gemini_response = get_gemini_response(user_text)
             gemini_response = gemini_response.replace('*', '')  # Удаление символов "*"
             bot.reply_to(message, gemini_response.lower())
+            store_message(user_id, user_text, gemini_response.lower(), gemini_response.lower())
     except Exception as e:
         handle_error(e)
 
@@ -116,6 +115,12 @@ def get_gemini_response_special(question, special_message):
         return result
     else:
         return "извините, произошла ошибка при обработке запроса"
+
+def store_message(user_id, user_text, bot_response, user_response):
+    message_entry = f"----------------------------------------\n{user_text}\nответ от тебя:\n{bot_response}\nответ от пользователя:\n{user_response}\n----------------------------------------"
+    user_data[user_id].append(message_entry)
+    if len(user_data[user_id]) > 5:
+        user_data[user_id].pop(0)
 
 def handle_error(error):
     error_message = f"Error: {error}"
