@@ -5,16 +5,12 @@ API_TOKEN = '6487715421:AAG4WeqsWG_8FkxQbbbZbHDqeDadF-0Ir1g'
 
 bot = telebot.TeleBot(API_TOKEN)
 
-@bot.message_handler(content_types=['sticker'])
-def handle_sticker(message):
-    # Получаем файл_id стикера
-    file_id = message.sticker.file_id
+# ID стикера, который нужно отправить
+STICKER_ID = 'CAACAgUAAxkBAAIC3WayOjLJBeRRcNJMudxAOATGtyOqAAJKBwACL3PQVBb_4XVqltbqNQQ'
 
-    # Получаем ссылку на стикер
-    sticker_url = f"https://api.telegram.org/file/bot{API_TOKEN}/{file_id}"
-
-    # Отправляем ссылку пользователю
-    bot.reply_to(message, sticker_url)
+@bot.message_handler(func=lambda message: message.text == '😈')
+def send_sticker(message):
+    bot.send_sticker(message.chat.id, STICKER_ID)
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)
