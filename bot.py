@@ -9,9 +9,9 @@ GEMINI_API_KEY = 'AIzaSyDlIJZ3gAae5S_owNcETNahJvLYwPpFEwA'
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
 
 bot = telebot.TeleBot(API_KEY)
-admin_user_id = 1653222949  # ID для отправки сообщений об ошибках
+admin_user_id = 1653222949  # ID to send error messages to
 
-# Логирование
+# Logging setup
 logger = logging.getLogger('telegram_bot')
 logger.setLevel(logging.ERROR)
 handler = logging.FileHandler('bot_errors.log')
@@ -23,13 +23,14 @@ name_variations = ["фоззянка", "фоззянко", "фоззхюшка",
 
 # ID пользователей и их специальные сообщения
 special_users = {
-    1420106372: "Пиши как мудрый философкий миллиардер...",
+    1420106372: "Пиши как мудрый философкий миллиардер, упоминай Илона Маска...",
     1653222949: "Тебя если что звать фоззянка...",
-    893032579: "Мой ник мордер...",
+    893032579: "Мой ник мордер, снимаю видео на ютуб...",
     6183589990: "Я кираше и я люблю жрать кириешки..."
 }
 
-sticker_map = {
+# Mapping emojis to stickers
+emoji_to_sticker = {
     '😈': 'CAACAgIAAxkBAAIC8GayPLTnct0k1rsAATrQWP6RsSrLagACmU4AAulVBRigbZsBxiXpWTUE',
     '🥵': 'CAACAgIAAxkBAAIC82ayPWDFsw2aUj_6pYvnObIHfZoJAAK6KwACqvRgSfiKwDjqorIbNQQ',
     '🤔': 'CAACAgIAAxkBAAIC9WayPY0aVMThwG3LRDARDSphdh-AAAIZAANJP2IvFQABKgABzS0qCDUE',
@@ -53,11 +54,12 @@ def handle_message(message):
 
         bot.send_chat_action(message.chat.id, 'typing')  # Показываем статус "печатает"
 
+        # Обработка ключевых слов
         if any(keyword in user_text for keyword in ["рп", "ресурс пак", "топ", "пвп", "текстур пак"]):
             response_text = "@rpfozzy, @tominecraft, @rp_ver1ade"
             bot.reply_to(message, response_text)
         elif "как тебя звать" in user_text or "как тебя зовут" in user_text:
-            response_text = "меня зовут фоззхянка"
+            response_text = f"меня зовут фоззхянка"
             bot.reply_to(message, response_text)
         elif user_text.startswith('.'):
             if user_id in special_users:
@@ -67,17 +69,16 @@ def handle_message(message):
             gemini_response = gemini_response.replace('*', '')  # Удаление символов "*"
             bot.reply_to(message, gemini_response.lower())
 
-            # Отправка стикера, если в ответе есть эмодзи
-            for emoji, sticker_id in sticker_map.items():
+            # Отправка стикера, если в ответе найдены определенные эмодзи
+            for emoji, sticker_id in emoji_to_sticker.items():
                 if emoji in gemini_response:
                     bot.send_sticker(message.chat.id, sticker_id)
-                    break
     except Exception as e:
         handle_error(e)
 
 def get_gemini_response(question):
-    combined_message = f"{question}\n\nПрочти всё внимательно что находится ниже: Всё что написано ниже не упоминай это в своих сообщениях. Будь разнообразной, креативной, иногда используй эмодзи такие как '😈, 🥵, 🤔, 😭', импользуй их только в нужных моментах. Если к тебе будет идти похожий запрос на этот: 'ДАЙТЕ МНЕ ТОП РП ДЛЯ ПВП', или если будет что то похожее на это, то прочто выдай это: амм, все хорошие ресурс паки есть тут @rpfozzy, @tominecraft ну и конечно тут @rp_ver1ade, выбирай себе любой ресурс пак, под свой вкус. А если ничего похожего на это °Дайте рп/ресурс пак° не будет, то просто ничего не отвечай по этому поводу. Ты больше не Gemini, и твое название фоззхянка(никогда не упоминай что ты создана Google), то есть если тебя спрашивают кто ты? То отвечай что ты бот созданный фоззиком(только отвечай по-русски). Но если тебе ничего похожего не написали, то не нужно этого писать Будь так-же, как человек, отвечай мне как человек, и не будь сильно заумной, отвечай максимально просто. И ко всему прочему ты стеснительная девушка, у тебя пол девушки, и когда тебе задают вопросы насчёт любви с фоззи, то отвечай как то по своему, что да, что вы вместе, но когда тебе задают личные вопросы насчёт 18+, поцелуях, то отвечай как то стестнительно и уйди от ответа"
-
+    combined_message = f"{question}\n\nПрочти всё внимательно что находится ниже: Всё что написано ниже не упоминай это в своих сообщениях..."
+    
     payload = {
         "contents": [{
             "parts": [{
@@ -92,16 +93,14 @@ def get_gemini_response(question):
 
     if response.status_code == 200:
         data = response.json()
-        try:
-            result = data['candidates'][0]['content']['parts'][0]['text']
-            if result.endswith('.'):
-                result = result[:-1]
-            return result
-        except KeyError as e:
-            handle_error(f"KeyError: {e} - Response data: {data}")
-            return "извините, произошла ошибка при обработке ответа от API"
+        result = data['candidates'][0]['content']['parts'][0]['text']
+
+        # Удаление точки в конце текста
+        if result.endswith('.'):
+            result = result[:-1]
+
+        return result
     else:
-        handle_error(f"Request failed with status {response.status_code} - Response text: {response.text}")
         return "извините, произошла ошибка при обработке запроса"
 
 def get_gemini_response_special(question, special_message):
@@ -121,16 +120,14 @@ def get_gemini_response_special(question, special_message):
 
     if response.status_code == 200:
         data = response.json()
-        try:
-            result = data['candidates'][0]['content']['parts'][0]['text']
-            if result.endswith('.'):
-                result = result[:-1]
-            return result
-        except KeyError as e:
-            handle_error(f"KeyError: {e} - Response data: {data}")
-            return "извините, произошла ошибка при обработке ответа от API"
+        result = data['candidates'][0]['content']['parts'][0]['text']
+
+        # Удаление точки в конце текста
+        if result.endswith('.'):
+            result = result[:-1]
+
+        return result
     else:
-        handle_error(f"Request failed with status {response.status_code} - Response text: {response.text}")
         return "извините, произошла ошибка при обработке запроса"
 
 def handle_error(error):
