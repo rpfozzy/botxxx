@@ -47,9 +47,6 @@ def handle_message(message):
 
         bot.send_chat_action(message.chat.id, 'typing')  # Показываем статус "печатает"
 
-        # Сохранение сообщения пользователя
-        user_messages[user_id].append(f"пользователь:\n{message.text}\n\n")
-
         # Обработка ключевых слов
         if any(keyword in user_text for keyword in ["рп", "ресурс пак", "топ", "пвп", "текстур пак"]):
             response_text = "@rpfozzy, @tominecraft, @rp_ver1ade"
@@ -63,8 +60,17 @@ def handle_message(message):
             else:
                 gemini_response = get_gemini_response(user_id, user_text)
             gemini_response = gemini_response.replace('*', '')  # Удаление символов "*"
-            user_messages[user_id].append(f"ответ от тебя:\n{gemini_response}\n\n")
-            bot.reply_to(message, gemini_response.lower())
+            
+            # Сохранение сообщения пользователя и ответа бота
+            user_messages[user_id].append(f"пользователь:\n{message.text}\n\nответ от тебя:\n{gemini_response}\n\n")
+            
+            # Форматирование истории сообщений и ответов
+            message_history = ''.join(user_messages[user_id])
+            bot.reply_to(message, f"----------------------------------------\n{message_history}----------------------------------------")
+            
+            # Проверка длины истории сообщений
+            if len(user_messages[user_id]) == 5:
+                user_messages[user_id].clear()  # Сброс истории после 5 сообщений
     except Exception as e:
         handle_error(e)
 
