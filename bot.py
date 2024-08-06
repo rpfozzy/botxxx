@@ -90,13 +90,16 @@ def get_gemini_response(question):
 
     if response.status_code == 200:
         data = response.json()
-        result = data['candidates'][0]['text']
-
-        if result.endswith('.'):
-            result = result[:-1]
-
-        return result
+        try:
+            result = data['candidates'][0]['text']
+            if result.endswith('.'):
+                result = result[:-1]
+            return result
+        except KeyError as e:
+            handle_error(f"KeyError: {e} - Response data: {data}")
+            return "извините, произошла ошибка при обработке ответа от API"
     else:
+        handle_error(f"Request failed with status {response.status_code} - Response text: {response.text}")
         return "извините, произошла ошибка при обработке запроса"
 
 def get_gemini_response_special(question, special_message):
@@ -116,14 +119,14 @@ def get_gemini_response_special(question, special_message):
         data = response.json()
         try:
             result = data['candidates'][0]['text']
-
             if result.endswith('.'):
                 result = result[:-1]
-
             return result
-        except KeyError:
+        except KeyError as e:
+            handle_error(f"KeyError: {e} - Response data: {data}")
             return "извините, произошла ошибка при обработке ответа от API"
     else:
+        handle_error(f"Request failed with status {response.status_code} - Response text: {response.text}")
         return "извините, произошла ошибка при обработке запроса"
 
 def handle_error(error):
