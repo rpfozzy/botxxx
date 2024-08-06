@@ -9,9 +9,9 @@ GEMINI_API_KEY = 'AIzaSyDlIJZ3gAae5S_owNcETNahJvLYwPpFEwA'
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
 
 bot = telebot.TeleBot(API_KEY)
-admin_user_id = 1653222949  # ID to send error messages to
+admin_user_id = 1653222949  # ID для отправки сообщений об ошибках
 
-# Logging setup
+# Настройка логирования
 logger = logging.getLogger('telegram_bot')
 logger.setLevel(logging.ERROR)
 handler = logging.FileHandler('bot_errors.log')
@@ -29,7 +29,7 @@ special_users = {
     6183589990: "Я кираше и я люблю жрать кириешки..."
 }
 
-# Mapping emojis to stickers
+# Сопоставление эмодзи со стикерами
 emoji_to_sticker = {
     '😈': 'CAACAgIAAxkBAAIC8GayPLTnct0k1rsAATrQWP6RsSrLagACmU4AAulVBRigbZsBxiXpWTUE',
     '🥵': 'CAACAgIAAxkBAAIC82ayPWDFsw2aUj_6pYvnObIHfZoJAAK6KwACqvRgSfiKwDjqorIbNQQ',
@@ -58,7 +58,7 @@ def handle_message(message):
         if any(keyword in user_text for keyword in ["рп", "ресурс пак", "топ", "пвп", "текстур пак"]):
             response_text = "@rpfozzy, @tominecraft, @rp_ver1ade"
             sent_message = bot.reply_to(message, response_text)
-        elif "как тебя звать" in user_text or "как тебя зовут" in user_text:
+        elif "как тебя звать" in user_text или "как тебя зовут" in user_text:
             response_text = f"меня зовут фоззхянка"
             sent_message = bot.reply_to(message, response_text)
         elif user_text.startswith('.'):
@@ -91,17 +91,19 @@ def get_gemini_response(question):
 
     if response.status_code == 200:
         data = response.json()
-        try:
-            result = data['candidates'][0]['content']['parts'][0]['text']
-        except (KeyError, IndexError) as e:
-            handle_error(f"Error parsing API response: {e}, response content: {data}")
+        if 'candidates' in data and len(data['candidates']) > 0:
+            if 'content' in data['candidates'][0] and 'parts' in data['candidates'][0]['content'] and len(data['candidates'][0]['content']['parts']) > 0:
+                result = data['candidates'][0]['content']['parts'][0]['text']
+                # Удаление точки в конце текста
+                if result.endswith('.'):
+                    result = result[:-1]
+                return result
+            else:
+                handle_error(f"Unexpected API response structure: {data}")
+                return "извините, произошла ошибка при обработке запроса"
+        else:
+            handle_error(f"API response indicates safety issue or no content: {data}")
             return "извините, произошла ошибка при обработке запроса"
-
-        # Удаление точки в конце текста
-        if result.endswith('.'):
-            result = result[:-1]
-
-        return result
     else:
         handle_error(f"API request failed with status code {response.status_code}, response content: {response.content}")
         return "извините, произошла ошибка при обработке запроса"
@@ -123,17 +125,19 @@ def get_gemini_response_special(question, special_message):
 
     if response.status_code == 200:
         data = response.json()
-        try:
-            result = data['candidates'][0]['content']['parts'][0]['text']
-        except (KeyError, IndexError) as e:
-            handle_error(f"Error parsing API response: {e}, response content: {data}")
+        if 'candidates' in data and len(data['candidates']) > 0:
+            if 'content' in data['candidates'][0] and 'parts' in data['candidates'][0]['content'] and len(data['candidates'][0]['content']['parts']) > 0:
+                result = data['candidates'][0]['content']['parts'][0]['text']
+                # Удаление точки в конце текста
+                if result.endswith('.'):
+                    result = result[:-1]
+                return result
+            else:
+                handle_error(f"Unexpected API response structure: {data}")
+                return "извините, произошла ошибка при обработке запроса"
+        else:
+            handle_error(f"API response indicates safety issue or no content: {data}")
             return "извините, произошла ошибка при обработке запроса"
-
-        # Удаление точки в конце текста
-        if result.endswith('.'):
-            result = result[:-1]
-
-        return result
     else:
         handle_error(f"API request failed with status code {response.status_code}, response content: {response.content}")
         return "извините, произошла ошибка при обработке запроса"
