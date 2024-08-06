@@ -10,11 +10,8 @@ def handle_sticker(message):
     # Получаем файл_id стикера
     file_id = message.sticker.file_id
 
-    # Получаем файл по file_id
-    file_info = bot.get_file(file_id)
-
-    # Формируем URL для скачивания файла
-    sticker_url = f"https://api.telegram.org/file/bot{API_TOKEN}/{file_info.file_path}"
+    # Получаем ссылку на стикер
+    sticker_url = f"https://api.telegram.org/file/bot{API_TOKEN}/{file_id}"
 
     # Отправляем ссылку пользователю
     bot.reply_to(message, sticker_url)
