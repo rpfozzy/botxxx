@@ -91,7 +91,11 @@ def get_gemini_response(question):
 
     if response.status_code == 200:
         data = response.json()
-        result = data['candidates'][0]['content']['parts'][0]['text']
+        try:
+            result = data['candidates'][0]['content']['parts'][0]['text']
+        except (KeyError, IndexError) as e:
+            handle_error(f"Error parsing API response: {e}, response content: {data}")
+            return "извините, произошла ошибка при обработке запроса"
 
         # Удаление точки в конце текста
         if result.endswith('.'):
@@ -99,6 +103,7 @@ def get_gemini_response(question):
 
         return result
     else:
+        handle_error(f"API request failed with status code {response.status_code}, response content: {response.content}")
         return "извините, произошла ошибка при обработке запроса"
 
 def get_gemini_response_special(question, special_message):
@@ -118,7 +123,11 @@ def get_gemini_response_special(question, special_message):
 
     if response.status_code == 200:
         data = response.json()
-        result = data['candidates'][0]['content']['parts'][0]['text']
+        try:
+            result = data['candidates'][0]['content']['parts'][0]['text']
+        except (KeyError, IndexError) as e:
+            handle_error(f"Error parsing API response: {e}, response content: {data}")
+            return "извините, произошла ошибка при обработке запроса"
 
         # Удаление точки в конце текста
         if result.endswith('.'):
@@ -126,6 +135,7 @@ def get_gemini_response_special(question, special_message):
 
         return result
     else:
+        handle_error(f"API request failed with status code {response.status_code}, response content: {response.content}")
         return "извините, произошла ошибка при обработке запроса"
 
 def send_stickers_based_on_emojis(response, chat_id):
