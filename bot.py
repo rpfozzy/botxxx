@@ -70,9 +70,7 @@ def handle_message(message):
             bot.reply_to(message, gemini_response.lower())
 
             # Отправка стикера, если в ответе найдены определенные эмодзи
-            for emoji, sticker_id in emoji_to_sticker.items():
-                if emoji in gemini_response:
-                    bot.send_sticker(message.chat.id, sticker_id)
+            send_stickers_based_on_emojis(gemini_response, message.chat.id)
     except Exception as e:
         handle_error(e)
 
@@ -129,6 +127,11 @@ def get_gemini_response_special(question, special_message):
         return result
     else:
         return "извините, произошла ошибка при обработке запроса"
+
+def send_stickers_based_on_emojis(response, chat_id):
+    for emoji, sticker_id in emoji_to_sticker.items():
+        if emoji in response:
+            bot.send_sticker(chat_id, sticker_id)
 
 def handle_error(error):
     error_message = f"Error: {error}"
