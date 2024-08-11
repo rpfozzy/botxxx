@@ -29,6 +29,30 @@ special_users = {
      6183589990: "Я кираше и я люблю жрать кириешки. Запомни меня, а так же используй такие эмодзи часто: 💀💀💀, 😱😱😱, 😨😨😨. Если тебя чето спросят по тому что тут находится, то просто креативно расскажи что ты знаешь о человеке. А ещё пиши сообщения с добавкой, то есть стилем, например есть слово °сигма°, а ты заменяй букву а на о, или например слова какие то делай со слово о, чтобы было как то так, чоо, чита, общайся очень мощно"
 }
 
+# Словарь стикеров для эмодзи
+sticker_ids = {
+    "😍": "CAACAgIAAxkBAAEMov5muSAy9QAB8n7RQRH_bxKM7QYV_G4AAnUQAAIkPShK7fRHy2fGVoU1BA",
+    "🤔": "CAACAgIAAxkBAAEMowABZrkgX1vJOT0QxScPkHis-6l7KDsAAhkAA0k_Yi8VAAEqAAHNLSoINQQ",
+    "😈": "CAACAgIAAxkBAAEMowRmuSCFj0zcuf8GgiURQgYb51QjxgACmU4AAulVBRigbZsBxiXpWTUE",
+    "😭": "CAACAgIAAxkBAAEMowhmuSD-R1nwEIlkbClJmr3zwHcSlQAC9DYAAg7oYEnNK9ID-4SuXTUE",
+    "😔": "CAACAgIAAxkBAAEMowtmuSFTznsObIpgFiSGqov4ownwwgACqjAAAtngqElfV2ACzqof9DUE",
+    "💀": "CAACAgIAAxkBAAEMow5muSF_IX7QL0OMGh8-ef1OSSi1swACRzQAApnYYUnrD5sJA7LOqTUE",
+    "😎": "CAACAgIAAxkBAAEMoxFmuSGpJrwg4MDwB_QX8ZHlgANwQwACrCAAAqcX6EnekTc4U9XKJDUE",
+    "🙄": "CAACAgIAAxkBAAEMoxRmuSH9E1UPwMb-MKYIWE8Hbf_mUgACDR8AAuCjggfcd_itua8rUjUE",
+    "🥵": "CAACAgQAAxkBAAEMoxdmuSIdPxslaDjevc0i0_AyIf_ulwACYQkAAqS50FOCNQABSlGTqKw1BA",
+    "🔥": "CAACAgUAAxkBAAEMoxpmuSLy4UbS_QazxyKpZsMiVk_GogAChQQAAoI9yVRX7JFASGr-QTUE",
+    "💔": "CAACAgQAAxkBAAEMox1muSM2K7n_USxrJL7Qy6LS3DyQVQACigoAAsD-cFBtE3XmL45ukzUE",
+    "👍🏻": "CAACAgUAAxkBAAEMoyBmuSNepjqBIZuf-9td1Mkd5xt2TQACFgcAAvtw0FT_XHLToO8fEzUE",
+    "😶": "CAACAgUAAxkBAAEMoyNmuSP4kUCU1q2wg0mXpdLr4C2ikwACowQAAnzu0VT7TLA8gh3gdjUE",
+    "🫤": "CAACAgIAAxkBAAEMoypmuSSstZC6EA-lvmMWksIKfQQCtwACxjAAArm8sUk24f5CBH50kzUE",
+    "🥰": "CAACAgIAAxkBAAEMoy1muSU2-rcd-hUsVCfJQU8utojbRgACVx8AAiKhyEmSet5xUGw26jUE",
+    "🤗": "CAACAgUAAxkBAAEMozBmuSV0DA9xFil0AeBHxzN_531deAACYwQAAke6yFRlbuRiaNzJYjUE",
+    "🥳": "CAACAgUAAxkBAAEMozNmuSWfT4lwgbZumjQkKw-wvGPNbgACcAYAAih20FT-MfL8EPSuwDUE",
+    "❤️": "CAACAgIAAxkBAAEMozZmuSZD94qtUUKPutbcqylrAR1dywAC3DMAAmnfYUlV9O709XSQzDUE",
+    "🤯": "CAACAgIAAxkBAAEMozxmuSZiFIM0YbmtFvXhPLn--NgOxAAC6WMAAuCjgge9QVBYCIBTZzUE",
+    "🤫": "CAACAgUAAxkBAAEMo0FmuSaV1oZZsUAbWPLT-HaD96jt0wACCQcAAmrS0FQdAlb15L7JwzUE"
+}
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "приветт, я фоззянка. как я могу помочь?😈")
@@ -46,20 +70,28 @@ def handle_message(message):
 
         bot.send_chat_action(message.chat.id, 'typing')  # Показываем статус "печатает"
 
-        # Обработка ключевых слов
         if any(keyword in user_text for keyword in ["рп", "ресурс пак", "топ", "пвп", "текстур пак"]):
             response_text = "@rpfozzy, @tominecraft, @rp_ver1ade"
             bot.reply_to(message, response_text)
         elif "как тебя звать" in user_text or "как тебя зовут" in user_text:
-            response_text = f"меня зовут фоззхянка"
+            response_text = "меня зовут фоззхянка"
             bot.reply_to(message, response_text)
         elif (chat_type == 'private' or user_text.startswith('.')):
             if user_id in special_users:
                 gemini_response = get_gemini_response_special(user_text, special_users[user_id])
             else:
                 gemini_response = get_gemini_response(user_text)
+            
             gemini_response = gemini_response.replace('*', '')  # Удаление символов "*"
-            bot.reply_to(message, gemini_response.lower())
+            
+            # Отправка соответствующего стикера, если в ответе содержится определённый эмодзи
+            for emoji, sticker_id in sticker_ids.items():
+                if emoji in gemini_response:
+                    bot.reply_to(message, gemini_response)
+                    bot.send_sticker(message.chat.id, sticker_id)
+                    break
+            else:
+                bot.reply_to(message, gemini_response.lower())
     except Exception as e:
         handle_error(e)
 
