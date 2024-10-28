@@ -11,7 +11,7 @@ GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini
 bot = telebot.TeleBot(API_KEY)
 admin_user_id = 1653222949  # ID для отправки сообщений об ошибках
 
-# Настройка логированияf
+# Настройка логированияfм
 logger = logging.getLogger('telegram_bot')
 logger.setLevel(logging.ERROR)
 handler = logging.FileHandler('bot_errors.log')
